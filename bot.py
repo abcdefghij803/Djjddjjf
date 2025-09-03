@@ -1,4 +1,3 @@
-# bot.py
 import asyncio
 from telethon import TelegramClient, events
 from config import API_ID, API_HASH, BOT_TOKEN, MONGO_URL
@@ -69,6 +68,9 @@ async def transfer_handler(event):
     except Exception:
         return await event.reply("❌ Could not find recipient user.")
 
+    # ensure recipient exists in DB
+    await db.ensure_user(recipient_id)
+
     ok = await db.transfer_asset(event.sender_id, recipient_id, asset, amount)
 
     if ok:
@@ -80,9 +82,6 @@ async def transfer_handler(event):
     else:
         await event.reply("❌ Transfer failed. Not enough assets or invalid.")
 
-async def main():
-    print("Bot started...")
-    await bot.run_until_disconnected()
-
 if __name__ == "__main__":
-    asyncio.run(main())
+    print("Bot started...")
+    bot.run_until_disconnected()
